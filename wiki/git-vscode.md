@@ -345,7 +345,9 @@ For each conflicting file, complete the following steps:
    git pull --rebase origin main
    ```
 
-2. If `Git` asks for a password, provide [your `GitHub` PAT](./github.md#create-a-pat-classic).
+   > <h3>Troubleshooting</h3>
+   >
+   > [**`git` asks for a password**](./github.md#git-asks-for-a-password)
 
 ### Pull and rebase using `GitLens`
 
