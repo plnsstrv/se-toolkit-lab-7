@@ -5,27 +5,24 @@ from services import BackendClient, BackendError
 
 
 def _normalize_lab_id(raw: str) -> str | None:
-    value = raw.strip().lower()
+    value = (raw or "").strip().lower()
     if not value.startswith("lab-"):
         return None
-
     suffix = value.removeprefix("lab-")
     if not suffix.isdigit():
         return None
-
     return f"lab-{int(suffix):02d}"
 
 
 async def handle_command(text: str, backend: BackendClient) -> str:
     command = (text or "").strip()
-
     if not command:
-        return "Empty command. Try /start or /help."
+        return "Empty command.\nTry /start or /help."
 
     if command == "/start":
         return (
             "Welcome to the SE Toolkit bot.\n"
-            "Available commands: /start, /help, /health, /labs, /scores <lab-id>."
+            "Available commands: /start, /help, /health, /labs, /scores lab-04"
         )
 
     if command == "/help":
@@ -33,9 +30,9 @@ async def handle_command(text: str, backend: BackendClient) -> str:
             "Available commands:\n"
             "/start - welcome message\n"
             "/help - show this help\n"
-            "/health - backend health and items count\n"
+            "/health - backend health and item count\n"
             "/labs - list available labs from backend\n"
-            "/scores <lab-id> - show per-task averages and attempts, e.g. /scores lab-04"
+            "/scores lab-04 - show per-task averages and attempts\n"
         )
 
     if command == "/health":
@@ -62,16 +59,13 @@ async def handle_command(text: str, backend: BackendClient) -> str:
         parts = command.split(maxsplit=1)
         if len(parts) < 2:
             return "Usage: /scores lab-04"
-
         lab_id = _normalize_lab_id(parts[1])
         if lab_id is None:
             return "Invalid lab id. Use format like /scores lab-04"
-
         try:
             rows = await backend.get_scores_for_lab(lab_id)
             if not rows:
                 return f"No score data found for {lab_id}."
-
             lines = [f"Scores for {lab_id}:"]
             for row in rows:
                 task = row.get("task", "Unknown task")
