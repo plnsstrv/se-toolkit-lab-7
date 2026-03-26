@@ -89,6 +89,22 @@ services:
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
 
+  bot:
+    build:
+      context: ./bot
+    restart: unless-stopped
+    networks:
+      - lms-network
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - LMS_API_BASE_URL=http://backend:8000
+      - LMS_API_KEY=${LMS_API_KEY}
+      - LLM_API_BASE_URL=${LLM_API_BASE_URL}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_API_MODEL=${LLM_API_MODEL}
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
 
