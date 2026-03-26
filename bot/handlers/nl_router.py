@@ -5,7 +5,40 @@ from typing import Any, Awaitable, Callable
 
 from services import BackendClient, LLMClient, LLMError
 
-ToolHandler = Callable[[dict[str, Any]], Awaitable[str]]
+ToolHandler = Callable[[dict[str, Any]], Awaitable[Any]]
+
+SYSTEM_PROMPT = """
+You are an LMS analytics assistant.
+
+Use tools for every factual LMS question. Never answer from memory when tools can provide the data.
+
+Available tools:
+- get_items: list all labs and tasks from the backend
+- get_learners: list learners and enrollment data
+- get_scores: score distribution for a lab
+- get_pass_rates: per-task pass-rate / average-score data for a lab
+- get_timeline: timeline data for a lab
+- get_groups: group performance for a lab
+- get_top_learners: top learners globally or for a lab
+- get_completion_rate: completion percentage for a lab
+- trigger_sync: sync data from the pipeline
+
+Routing guidance:
+- "what labs are available" -> get_items
+- "show me scores for lab 4" -> get_scores with lab="lab-04"
+- "how many students are enrolled" -> get_learners
+- "which group is doing best in lab 3" -> get_groups with lab="lab-03"
+- "which lab has the lowest pass rate" -> get_items, then get_pass_rates for labs, then compare
+- "who are the top 5 students" -> get_top_learners with limit=5
+- "sync the data" -> trigger_sync
+
+Rules:
+- Do not ask follow-up questions if the tools already allow an answer.
+- Do not ask for a lab when answering "top 5 students" unless the user explicitly asked for a specific lab.
+- Avoid repeating the same tool call with the same arguments.
+- Use concrete backend data in the final answer: lab names, task names, numbers, group names, learner names, scores, percentages, attempts.
+- For greetings or nonsense, answer briefly without tools.
+""".strip()
 
 
 def get_tool_schemas() -> list[dict[str, Any]]:
@@ -13,31 +46,28 @@ def get_tool_schemas() -> list[dict[str, Any]]:
         {
             "type": "function",
             "function": {
-                "name": "get_health_summary",
-                "description": "Get backend health summary with counts of items and learners.",
+                "name": "get_items",
+                "description": "List all labs and tasks from the backend.",
                 "parameters": {"type": "object", "properties": {}, "required": []},
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "list_labs",
-                "description": "List real lab titles available in backend.",
+                "name": "get_learners",
+                "description": "List enrolled learners and enrollment data.",
                 "parameters": {"type": "object", "properties": {}, "required": []},
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "get_lab_scores",
-                "description": "Get per-task score information for a specific lab like lab-04.",
+                "name": "get_scores",
+                "description": "Get score distribution for a lab like lab-04.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "lab": {
-                            "type": "string",
-                            "description": "Lab id in format lab-01, lab-02, lab-03, etc.",
-                        }
+                        "lab": {"type": "string", "description": "Lab id like lab-04"}
                     },
                     "required": ["lab"],
                 },
@@ -46,243 +76,253 @@ def get_tool_schemas() -> list[dict[str, Any]]:
         {
             "type": "function",
             "function": {
-                "name": "get_enrollment_count",
-                "description": "Get total number of enrolled learners or students.",
-                "parameters": {"type": "object", "properties": {}, "required": []},
+                "name": "get_pass_rates",
+                "description": "Get per-task pass-rate or average-score data for a lab like lab-04.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lab": {"type": "string", "description": "Lab id like lab-04"}
+                    },
+                    "required": ["lab"],
+                },
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "get_lowest_pass_rate_lab",
-                "description": "Find the lab with the lowest average pass rate or score.",
-                "parameters": {"type": "object", "properties": {}, "required": []},
+                "name": "get_timeline",
+                "description": "Get timeline or submissions-over-time data for a lab like lab-04.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lab": {"type": "string", "description": "Lab id like lab-04"}
+                    },
+                    "required": ["lab"],
+                },
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "get_highest_pass_rate_lab",
-                "description": "Find the lab with the highest average pass rate or score.",
-                "parameters": {"type": "object", "properties": {}, "required": []},
+                "name": "get_groups",
+                "description": "Get group performance for a lab like lab-03.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lab": {"type": "string", "description": "Lab id like lab-03"}
+                    },
+                    "required": ["lab"],
+                },
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "count_items",
-                "description": "Count total items stored in backend.",
-                "parameters": {"type": "object", "properties": {}, "required": []},
+                "name": "get_top_learners",
+                "description": "Get the top learners globally across all labs, or for a specific lab if lab is provided.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lab": {"type": "string", "description": "Optional lab id like lab-04"},
+                        "limit": {"type": "integer", "description": "Number of learners to return", "default": 5},
+                    },
+                    "required": [],
+                },
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "get_lab_titles",
-                "description": "Get plain list of lab titles from backend.",
-                "parameters": {"type": "object", "properties": {}, "required": []},
+                "name": "get_completion_rate",
+                "description": "Get completion percentage for a lab like lab-05.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lab": {"type": "string", "description": "Lab id like lab-05"}
+                    },
+                    "required": ["lab"],
+                },
             },
         },
         {
             "type": "function",
             "function": {
-                "name": "get_pass_rates_overview",
-                "description": "Get pass rate overview from analytics endpoint.",
-                "parameters": {"type": "object", "properties": {}, "required": []},
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "get_learners_preview",
-                "description": "Get count and a short preview of learners data.",
+                "name": "trigger_sync",
+                "description": "Trigger backend sync / pipeline refresh.",
                 "parameters": {"type": "object", "properties": {}, "required": []},
             },
         },
     ]
 
 
-async def _tool_get_health_summary(_: dict[str, Any], backend: BackendClient) -> str:
-    summary = await backend.get_health_summary()
-    return (
-        f"Backend health: {summary.get('status', 'unknown')}. "
-        f"Items: {summary.get('items_count', 0)}. "
-        f"Learners: {summary.get('learners_count', 0)}."
-    )
+def _is_greeting_or_nonsense(text: str) -> bool:
+    lowered = " ".join((text or "").lower().strip().split())
+    if not lowered:
+        return True
+    greetings = {
+        "hello",
+        "hi",
+        "hey",
+        "greetings",
+        "good morning",
+        "good afternoon",
+        "good evening",
+    }
+    if lowered in greetings:
+        return True
+    if lowered in {"asdfgh", "qwerty", "zxcvbn", "aaaaa", "bbbbbb"}:
+        return True
+    return False
 
 
-async def _tool_list_labs(_: dict[str, Any], backend: BackendClient) -> str:
-    labs = await backend.get_lab_titles()
-    if not labs:
-        return "No labs found."
-    return "Available labs:\n" + "\n".join(f"- {lab}" for lab in labs)
+def _normalize_lab_id(value: Any) -> str | None:
+    if value is None:
+        return None
+
+    text = str(value).strip().lower().replace("_", "-")
+    if not text:
+        return None
+
+    if text.startswith("lab-"):
+        suffix = text[4:]
+        if suffix.isdigit():
+            return f"lab-{int(suffix):02d}"
+        return None
+
+    if text.startswith("lab"):
+        suffix = text[3:]
+        if suffix.isdigit():
+            return f"lab-{int(suffix):02d}"
+        return None
+
+    digits = "".join(ch for ch in text if ch.isdigit())
+    if digits:
+        return f"lab-{int(digits):02d}"
+
+    return None
 
 
-async def _tool_get_lab_scores(args: dict[str, Any], backend: BackendClient) -> str:
-    lab = str(args.get("lab", "")).strip().lower()
-    rows = await backend.get_scores_for_lab(lab)
-    if not rows:
-        return f"No score data found for {lab}."
-
-    lines = [f"Scores for {lab}:"]
-    for row in rows:
-        task = row.get("task", "Unknown task")
-        avg_score = row.get("avg_score", 0)
-        attempts = row.get("attempts", 0)
-        lines.append(f"- {task}: {avg_score}% average, {attempts} attempts")
-    return "\n".join(lines)
+def _safe_int(value: Any, default: int = 5) -> int:
+    try:
+        parsed = int(value)
+    except Exception:
+        parsed = default
+    if parsed < 1:
+        return 1
+    if parsed > 20:
+        return 20
+    return parsed
 
 
-async def _tool_get_enrollment_count(_: dict[str, Any], backend: BackendClient) -> str:
-    count = await backend.get_enrollment_count()
-    return f"Total enrolled learners: {count}."
+def _normalize_tool_args(name: str, args: dict[str, Any]) -> dict[str, Any]:
+    if name in {"get_scores", "get_pass_rates", "get_timeline", "get_groups", "get_completion_rate"}:
+        lab = _normalize_lab_id(args.get("lab"))
+        if not lab:
+            raise ValueError("lab is required and must look like lab-04")
+        return {"lab": lab}
+
+    if name == "get_top_learners":
+        normalized: dict[str, Any] = {"limit": _safe_int(args.get("limit", 5), 5)}
+        lab = _normalize_lab_id(args.get("lab"))
+        if lab:
+            normalized["lab"] = lab
+        return normalized
+
+    if name in {"get_items", "get_learners", "trigger_sync"}:
+        return {}
+
+    return args
 
 
-async def _tool_get_lowest_pass_rate_lab(_: dict[str, Any], backend: BackendClient) -> str:
-    row = await backend.get_lowest_pass_rate_lab()
-    if not row:
-        return "No pass rate data available."
-    return (
-        f"Lowest pass rate: {row.get('lab', 'unknown lab')} - "
-        f"{row.get('task', 'unknown task')} - {row.get('avg_score', 0)}%."
-    )
+async def _tool_get_items(_: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_items()
 
 
-async def _tool_get_highest_pass_rate_lab(_: dict[str, Any], backend: BackendClient) -> str:
-    row = await backend.get_highest_pass_rate_lab()
-    if not row:
-        return "No pass rate data available."
-    return (
-        f"Highest pass rate: {row.get('lab', 'unknown lab')} - "
-        f"{row.get('task', 'unknown task')} - {row.get('avg_score', 0)}%."
-    )
+async def _tool_get_learners(_: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_learners()
 
 
-async def _tool_count_items(_: dict[str, Any], backend: BackendClient) -> str:
-    items = await backend.get_items()
-    return f"Total backend items: {len(items)}."
+async def _tool_get_scores(args: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_scores(args["lab"])
 
 
-async def _tool_get_lab_titles(_: dict[str, Any], backend: BackendClient) -> str:
-    titles = await backend.get_lab_titles()
-    return "Lab titles:\n" + "\n".join(f"- {title}" for title in titles)
+async def _tool_get_pass_rates(args: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_pass_rates(args["lab"])
 
 
-async def _tool_get_pass_rates_overview(_: dict[str, Any], backend: BackendClient) -> str:
-    labs = await backend.get_labs()
-    lines = ["Pass-rate overview:"]
-    count = 0
-
-    for lab in labs:
-        title = str(lab.get("title", ""))
-        prefix = title.split("—", 1)[0].strip().replace("–", "").strip()
-        parts = prefix.split()
-        if len(parts) < 2 or not parts[1].isdigit():
-            continue
-
-        lab_id = f"lab-{int(parts[1]):02d}"
-        rows = await backend.get_scores_for_lab(lab_id)
-        for row in rows[:2]:
-            lines.append(
-                f"- {lab_id} / {row.get('task', 'unknown task')}: "
-                f"{row.get('avg_score', 0)}% average, {row.get('attempts', 0)} attempts"
-            )
-            count += 1
-            if count >= 5:
-                return "\n".join(lines)
-
-    return "\n".join(lines) if count else "No pass-rate overview available."
+async def _tool_get_timeline(args: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_timeline(args["lab"])
 
 
-async def _tool_get_learners_preview(_: dict[str, Any], backend: BackendClient) -> str:
-    learners = await backend.get_learners()
-    preview = learners[:3]
-    return f"Learners total: {len(learners)}. Preview rows: {preview}"
+async def _tool_get_groups(args: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_groups(args["lab"])
+
+
+async def _tool_get_top_learners(args: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_top_learners(lab=args.get("lab"), limit=args.get("limit", 5))
+
+
+async def _tool_get_completion_rate(args: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.get_completion_rate(args["lab"])
+
+
+async def _tool_trigger_sync(_: dict[str, Any], backend: BackendClient) -> Any:
+    return await backend.trigger_sync()
 
 
 def build_tool_handlers(backend: BackendClient) -> dict[str, ToolHandler]:
     return {
-        "get_health_summary": lambda args: _tool_get_health_summary(args, backend),
-        "list_labs": lambda args: _tool_list_labs(args, backend),
-        "get_lab_scores": lambda args: _tool_get_lab_scores(args, backend),
-        "get_enrollment_count": lambda args: _tool_get_enrollment_count(args, backend),
-        "get_lowest_pass_rate_lab": lambda args: _tool_get_lowest_pass_rate_lab(args, backend),
-        "get_highest_pass_rate_lab": lambda args: _tool_get_highest_pass_rate_lab(args, backend),
-        "count_items": lambda args: _tool_count_items(args, backend),
-        "get_lab_titles": lambda args: _tool_get_lab_titles(args, backend),
-        "get_pass_rates_overview": lambda args: _tool_get_pass_rates_overview(args, backend),
-        "get_learners_preview": lambda args: _tool_get_learners_preview(args, backend),
+        "get_items": lambda args: _tool_get_items(args, backend),
+        "get_learners": lambda args: _tool_get_learners(args, backend),
+        "get_scores": lambda args: _tool_get_scores(args, backend),
+        "get_pass_rates": lambda args: _tool_get_pass_rates(args, backend),
+        "get_timeline": lambda args: _tool_get_timeline(args, backend),
+        "get_groups": lambda args: _tool_get_groups(args, backend),
+        "get_top_learners": lambda args: _tool_get_top_learners(args, backend),
+        "get_completion_rate": lambda args: _tool_get_completion_rate(args, backend),
+        "trigger_sync": lambda args: _tool_trigger_sync(args, backend),
     }
 
 
-def _extract_tool_call(response: dict[str, Any]) -> tuple[str | None, dict[str, Any]]:
+def _extract_message(response: dict[str, Any]) -> dict[str, Any]:
     choices = response.get("choices", [])
     if not choices:
-        return None, {}
+        return {}
 
-    message = choices[0].get("message", {})
-    tool_calls = message.get("tool_calls", [])
-    if not tool_calls:
-        return None, {}
+    message = choices[0].get("message", {}) or {}
 
-    function_call = tool_calls[0].get("function", {})
-    name = function_call.get("name")
-    raw_arguments = function_call.get("arguments", "{}")
+    if message.get("function_call") and not message.get("tool_calls"):
+        message["tool_calls"] = [
+            {
+                "id": "legacy-tool-call-1",
+                "type": "function",
+                "function": message["function_call"],
+            }
+        ]
 
+    return message
+
+
+def _parse_tool_arguments(raw_arguments: Any) -> dict[str, Any]:
+    if raw_arguments is None:
+        return {}
+    if isinstance(raw_arguments, dict):
+        return raw_arguments
+    if not isinstance(raw_arguments, str) or not raw_arguments.strip():
+        return {}
     try:
-        args = json.loads(raw_arguments) if raw_arguments else {}
-    except json.JSONDecodeError:
-        args = {}
-
-    return name, args
-
-
-def _extract_lab_id(text: str) -> str | None:
-    lowered = text.lower().replace("-", " ").replace("_", " ")
-    tokens = lowered.split()
-
-    for token in tokens:
-        if token.isdigit():
-            n = int(token)
-            if 1 <= n <= 20:
-                return f"lab-{n:02d}"
-
-    for token in tokens:
-        if token.startswith("lab") and len(token) > 3:
-            suffix = token[3:]
-            if suffix.isdigit():
-                n = int(suffix)
-                if 1 <= n <= 20:
-                    return f"lab-{n:02d}"
-
-    return None
+        parsed = json.loads(raw_arguments)
+        return parsed if isinstance(parsed, dict) else {}
+    except Exception:
+        return {}
 
 
-def _fallback_tool_choice(text: str) -> tuple[str, dict[str, Any]] | None:
-    lowered = text.lower()
-
-    if "lowest" in lowered and "pass" in lowered:
-        return "get_lowest_pass_rate_lab", {}
-
-    if "highest" in lowered and "pass" in lowered:
-        return "get_highest_pass_rate_lab", {}
-
-    if "score" in lowered:
-        lab_id = _extract_lab_id(lowered)
-        if lab_id:
-            return "get_lab_scores", {"lab": lab_id}
-        return "get_pass_rates_overview", {}
-
-    if "student" in lowered or "enrolled" in lowered or "learner" in lowered:
-        return "get_enrollment_count", {}
-
-    if "lab" in lowered and ("available" in lowered or "list" in lowered or "what" in lowered):
-        return "list_labs", {}
-
-    if "sync" in lowered or "load" in lowered or "data" in lowered:
-        return "get_health_summary", {}
-
-    return None
+def _tool_result_summary(name: str, result: Any) -> str:
+    if isinstance(result, list):
+        return f"{name}: {len(result)} row(s)"
+    if isinstance(result, dict):
+        return f"{name}: {len(result)} field(s)"
+    return f"{name}: {str(result)[:120]}"
 
 
 async def route_natural_language(
@@ -290,54 +330,110 @@ async def route_natural_language(
     llm: LLMClient,
     backend: BackendClient,
 ) -> str:
+    user_text = (text or "").strip()
+    print(f"[route] Input: {user_text}")
+
+    if _is_greeting_or_nonsense(user_text):
+        return (
+            "Hello! I can help with labs, scores, pass rates, groups, top learners, "
+            "completion rates, timelines, and sync."
+        )
+
     tools = get_tool_schemas()
     handlers = build_tool_handlers(backend)
 
-    system_prompt = (
-        "You are a routing assistant for an LMS bot. "
-        "Always decide which tool best answers the user's request. "
-        "Never answer from memory when a tool can provide real data. "
-        "For labs, scores, enrollment, backend health, pass rates, and comparisons, call exactly one tool."
+    messages: list[dict[str, Any]] = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_text},
+    ]
+
+    seen_calls: set[str] = set()
+    tool_results_count = 0
+
+    try:
+        for iteration in range(1, 8):
+            print(f"[route] Iteration {iteration}")
+            response = await llm.chat(messages=messages, tools=tools)
+            message = _extract_message(response)
+            content = str(message.get("content") or "")
+            tool_calls = message.get("tool_calls") or []
+
+            assistant_message: dict[str, Any] = {"role": "assistant", "content": content}
+            if tool_calls:
+                assistant_message["tool_calls"] = tool_calls
+            messages.append(assistant_message)
+
+            if not tool_calls:
+                final_text = content.strip()
+                if final_text:
+                    print(f"[llm] Final answer: {final_text[:120]}...")
+                    return final_text
+                break
+
+            print(f"[tool] LLM called {len(tool_calls)} tool(s): {[tc.get('function', {}).get('name') for tc in tool_calls]}")
+
+            for tool_call in tool_calls:
+                function = tool_call.get("function", {}) or {}
+                tool_name = str(function.get("name", "")).strip()
+                parsed_args = _parse_tool_arguments(function.get("arguments", "{}"))
+                normalized_args = _normalize_tool_args(tool_name, parsed_args)
+
+                print(f"[tool] Executing: {tool_name}({normalized_args})")
+
+                signature = json.dumps(
+                    {"name": tool_name, "args": normalized_args},
+                    ensure_ascii=False,
+                    sort_keys=True,
+                )
+
+                if signature in seen_calls:
+                    result: Any = {
+                        "notice": "This tool call was already executed with the same arguments. Use previous results and answer the user."
+                    }
+                else:
+                    seen_calls.add(signature)
+                    handler = handlers[tool_name]
+                    result = await handler(normalized_args)
+
+                print(f"[tool] Result: {_tool_result_summary(tool_name, result)}")
+
+                tool_call_id = str(tool_call.get("id") or f"tool-call-{tool_results_count + 1}")
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call_id,
+                        "name": tool_name,
+                        "content": json.dumps(result, ensure_ascii=False, default=str),
+                    }
+                )
+                tool_results_count += 1
+
+            print(f"[summary] Fed {tool_results_count} tool result(s) back to LLM")
+
+        if tool_results_count > 0:
+            final_response = await llm.chat(
+                messages=messages + [
+                    {
+                        "role": "user",
+                        "content": "Answer the original question now using the tool results above. Include concrete backend data and numbers.",
+                    }
+                ],
+                tools=None,
+            )
+            final_message = _extract_message(final_response)
+            final_text = str(final_message.get("content") or "").strip()
+            if final_text:
+                print(f"[llm] Final answer: {final_text[:120]}...")
+                return final_text
+
+    except LLMError as exc:
+        print(f"[llm] Error: {exc}")
+        return "I'm unable to connect to the AI service right now. Please try again later."
+    except Exception as exc:
+        print(f"[route] Error: {exc}")
+        return f"Routing error: {exc}"
+
+    return (
+        "I could not answer that yet. Ask me about labs, scores, pass rates, groups, "
+        "top learners, completion rates, timelines, or sync."
     )
-
-    tool_name: str | None = None
-    args: dict[str, Any] = {}
-
-    try:
-        response = await llm.chat_with_tools(
-            user_text=text,
-            tools=tools,
-            system_prompt=system_prompt,
-        )
-        tool_name, args = _extract_tool_call(response)
-    except LLMError:
-        tool_name = None
-        args = {}
-
-    if not tool_name:
-        fallback = _fallback_tool_choice(text)
-        if fallback is not None:
-            tool_name, args = fallback
-
-    if not tool_name:
-        return (
-            "I could not understand that request. "
-            "Try asking about available labs, scores for a lab, enrollment, or pass rates."
-        )
-
-    handler = handlers.get(tool_name)
-    if handler is None:
-        return f"Tool not implemented: {tool_name}"
-
-    try:
-        result = await handler(args)
-    except Exception:
-        return (
-            "I could not complete that request. "
-            "Try asking about available labs, scores for a lab, enrollment, or pass rates."
-        )
-
-    if tool_name == "get_health_summary" and ("sync" in text.lower() or "load" in text.lower()):
-        return f"Sync check complete. {result}"
-
-    return result
