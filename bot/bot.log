@@ -1,0 +1,97 @@
+nohup: ignoring input
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+Sleep for 1.224194 seconds and try again... (tryings = 1, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 1236] Подключение к сети было разорвано локальной системой
+Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+Sleep for 1.242244 seconds and try again... (tryings = 1, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.772433 seconds and try again... (tryings = 2, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 2.321918 seconds and try again... (tryings = 3, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 2.803231 seconds and try again... (tryings = 4, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 3.812860 seconds and try again... (tryings = 5, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.021899 seconds and try again... (tryings = 6, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 1236] Подключение к сети было разорвано локальной системой
+Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.170126 seconds and try again... (tryings = 1, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.525524 seconds and try again... (tryings = 2, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.910339 seconds and try again... (tryings = 3, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 2.649224 seconds and try again... (tryings = 4, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 1236] Подключение к сети было разорвано локальной системой
+Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.286520 seconds and try again... (tryings = 1, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.548746 seconds and try again... (tryings = 2, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 2.015996 seconds and try again... (tryings = 3, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 1236] Подключение к сети было разорвано локальной системой
+Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.356784 seconds and try again... (tryings = 1, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 1.738445 seconds and try again... (tryings = 2, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 2.198565 seconds and try again... (tryings = 3, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 2.848506 seconds and try again... (tryings = 4, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 3.850343 seconds and try again... (tryings = 5, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.044221 seconds and try again... (tryings = 6, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.855668 seconds and try again... (tryings = 7, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.912117 seconds and try again... (tryings = 8, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.839580 seconds and try again... (tryings = 9, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.029282 seconds and try again... (tryings = 10, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.742999 seconds and try again... (tryings = 11, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.015979 seconds and try again... (tryings = 12, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.050960 seconds and try again... (tryings = 13, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.085959 seconds and try again... (tryings = 14, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.939995 seconds and try again... (tryings = 15, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.060827 seconds and try again... (tryings = 16, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.999741 seconds and try again... (tryings = 17, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.037105 seconds and try again... (tryings = 18, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.043364 seconds and try again... (tryings = 19, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.008494 seconds and try again... (tryings = 20, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.044157 seconds and try again... (tryings = 21, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.927901 seconds and try again... (tryings = 22, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 5.004697 seconds and try again... (tryings = 23, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.862356 seconds and try again... (tryings = 24, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.964724 seconds and try again... (tryings = 25, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.963067 seconds and try again... (tryings = 26, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.928107 seconds and try again... (tryings = 27, bot id = 8742161504)
+Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Sleep for 4.949120 seconds and try again... (tryings = 28, bot id = 8742161504)
