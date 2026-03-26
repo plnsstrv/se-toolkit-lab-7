@@ -91,3 +91,20 @@ By the end of this lab, you should be able to say:
 2. [Backend Integration](./lab/tasks/required/task-2.md) — P0: slash commands + real data
 3. [Intent-Based Natural Language Routing](./lab/tasks/required/task-3.md) — P1: LLM tool use
 4. [Containerize and Document](./lab/tasks/required/task-4.md) — P3: containerize + deploy
+
+## Deploy
+
+### Prerequisites
+Ensure these environment variables are set in `.env.docker.secret`:
+
+| Variable | Description |
+|----------|-------------|
+| `BOT_TOKEN` | Telegram bot token from @BotFather |
+| `LMS_API_KEY` | API key for the LMS backend |
+| `LLM_API_KEY` | API key for LLM (OpenRouter) |
+| `LLM_API_BASE_URL` | LLM API endpoint |
+| `LLM_API_MODEL` | LLM model name |
+
+### Start all services
+```bash
+docker compose --env-file .env.docker.secret up --build -d
